@@ -16,7 +16,7 @@ public abstract class CharacterCipher {
      * @return the grouped version of the argument string
      */
     public static String group(String str, int n) {
-        // TODO implement this
+        // TODO needs to be done
         return "";
     }
 
