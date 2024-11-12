@@ -23,6 +23,7 @@ public class Clack
 
     public static void main(String[] args)
     {
+        //server
         if (args.length < 2) {
             System.err.println(USAGE);
         } else if (args.length == 2
@@ -39,6 +40,8 @@ public class Clack
                 System.err.println(e.getMessage());
                 System.err.println(USAGE);
             }
+
+            //client
         } else if (args.length == 3
                 && args[0].equalsIgnoreCase("client"))
         {

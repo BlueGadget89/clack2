@@ -1,17 +1,17 @@
 package clack.message;
 
-public class ListUsersMessage
+public class LogInMessage
         extends Message
 {
-    public ListUsersMessage(String username)
+    public LogInMessage(String username)
     {
-        super(username, MsgTypeEnum.LISTUSERS);
+        super(username, MsgTypeEnum.LOGIN);
     }
 
     @Override
     public String toString()
     {
-        return "ListUsersMessage{"
+        return "LogInMessage{"
                 + super.toString()
                 + "}";
     }
