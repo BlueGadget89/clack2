@@ -3,16 +3,24 @@ package clack.message;
 public class LogInMessage
         extends Message
 {
-    public LogInMessage(String username)
+    private String password;
+
+    public LogInMessage(String username, String password)
     {
         super(username, MsgTypeEnum.LOGIN);
+        this.password = password;
     }
 
     @Override
-    public String toString()
+    public String toString() //returns it as asterix
     {
         return "LogInMessage{"
                 + super.toString()
                 + "}";
+    }
+
+    public String getPassword()
+    {
+        return password;
     }
 }

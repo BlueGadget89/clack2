@@ -23,6 +23,7 @@ public class Clack
 
     public static void main(String[] args)
     {
+//        System.out.println("myTest!!");
         //server
         if (args.length < 2) {
             System.err.println(USAGE);
@@ -47,10 +48,14 @@ public class Clack
         {
             try {
                 String serverName = args[1];
+//                String password = "text";
                 int port = Integer.parseInt(args[2]);
+//                System.out.println("hehe Connecting to " + serverName + " on port " + port);
                 Client client =
                         new Client(serverName, port, Client.DEFAULT_USERNAME);
-                client.start();
+                System.out.println("gooot heeerree v1");
+                client.start(); //TODO: there is an issue with the start method....needs fixing
+                System.out.println("gooot heeerree v2");
             } catch (NumberFormatException e) {
                 System.err.println(args[2] + " cannot be parsed as an int.");
                 System.err.println(USAGE);

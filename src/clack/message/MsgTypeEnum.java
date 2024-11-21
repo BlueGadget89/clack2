@@ -5,5 +5,6 @@ public enum MsgTypeEnum
     LISTUSERS,
     LOGOUT,
     TEXT,
-    LOGIN
+    LOGIN,
+    FILE
 }

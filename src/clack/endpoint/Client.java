@@ -39,7 +39,8 @@ public class Client {
      * @param username username to include in Messages.
      * @throws IllegalArgumentException if port not in range [1-49151]
      */
-    public Client(String hostname, int port, String username) {
+    public Client(String hostname, int port, String username)
+    {
         if (port < 1 || port > 49151) {
             throw new IllegalArgumentException(
                     "Port " + port + " not in range 1 - 49151.");
@@ -58,7 +59,8 @@ public class Client {
      * @param port     the service's port on the server.
      * @throws IllegalArgumentException if port not in range [1-49151]
      */
-    public Client(String hostname, int port) {
+    public Client(String hostname, int port)
+    {
         this(hostname, port, DEFAULT_USERNAME);
     }
 
@@ -69,61 +71,73 @@ public class Client {
      * @throws UnknownHostException if hostname is not resolvable.
      * @throws IOException          if socket creation, wrapping, or IO fails.
      */
-    public void start() throws UnknownHostException, IOException, ClassNotFoundException {
+    public void start() throws UnknownHostException, IOException, ClassNotFoundException
+    {
         System.out.println("Attempting connection to " + hostname + ":" + port);
         Scanner keyboard = new Scanner(System.in);
 
         try (
+                //tries to establish a connection
                 Socket socket = new Socket(hostname, port);
 
-                ObjectInputStream inObj = new ObjectInputStream(socket.getInputStream()); //reads from socket
+                //streams for writing and reading
                 ObjectOutputStream outObj = new ObjectOutputStream(socket.getOutputStream()); //writes to socket
-        ) {
+                ObjectInputStream inObj = new ObjectInputStream(socket.getInputStream()); //reads from socket
+        )
+        {
             String userInput;
             Message inMsg;
             Message outMsg;
 
             // Take turns talking. Server goes first.
             do {
-                // Get server message and show it to user.
+                // Get server message (SendGreeting) and show it to user.
                 inMsg = (Message) inObj.readObject();
-
-                outMsg = switch (inMsg.getMsgType()) {
-                    case MsgTypeEnum.LISTUSERS -> new TextMessage(username, "LISTUSERS requested");
-                    case MsgTypeEnum.LOGOUT -> new TextMessage(username, "GOOD_BYE");
-                    case MsgTypeEnum.TEXT -> new TextMessage(username,
-                            "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
-                    case MsgTypeEnum.LOGIN -> new TextMessage(username, "LOGIN requested");
+                String printThis = switch (inMsg.getMsgType()) {
+                    case MsgType.TEXT -> "Welcome: '" + ((TextMessage) inMsg).getText() + "'";
+                    default -> "UNEXPECTED MESSAGE: " + inMsg;
                 };
+                System.out.println(printThis); //Prints the SendGreeting
 
-                // Get user input
-                System.out.print(prompt);
-                userInput = keyboard.nextLine();
-                String[] tokens = userInput.trim().split("\\s+");
-                // DEBUG
-                // System.out.println("tokens: " + Arrays.toString(tokens));
+                String[] tokens;
+                do {
+                    // Get user input
+                    System.out.print(prompt);
+                    userInput = keyboard.nextLine();
+                    tokens = userInput.trim().split("\\s+");
+                    // DEBUG
+                    // System.out.println("tokens: " + Arrays.toString(tokens));
+                } while(tokens[0].length() == 0); //breaks when login is typed
 
                 // Construct Message based on user input and send it to server.
-                outMsg = switch (inMsg.getMsgType()) {
-                    case MsgTypeEnum.LISTUSERS -> new ListUsersMessage(username);
-                    case MsgTypeEnum.LOGOUT -> new LogoutMessage(username);
-                    case MsgTypeEnum.TEXT -> new TextMessage(username,
-                            "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
-                    case MsgTypeEnum.LOGIN -> new LogInMessage(username);
+                outMsg = switch (tokens[0].toUpperCase()) {
+                    case "LIST USERS"->
+                            new ListUsersMessage(username);
+                    case "LOGOUT"->
+                            new LogoutMessage(username);
+                    case "SEND FILE"->
+                            new FileMessage(username, tokens[2]);
+                    case "LOGIN"->
+                            new LoginMessage(username, tokens[1]);
+                    default->
+                            new TextMessage(username, "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
                 };
 
+                //send the generated message back to the server
                 outObj.writeObject(outMsg);
                 outObj.flush();
-            } while (outMsg.getMsgType() != MsgTypeEnum.LOGOUT);
 
+            } while (outMsg.getMsgType() != MsgType.LOGOUT);
+
+            // Once user wants to logout:
             // Get server's closing reply and show it to user.
             inMsg = (Message) inObj.readObject();
             System.out.println(
                     switch (inMsg.getMsgType()) {
-                        case LISTUSERS -> "UNEXPECTED RESPONSE: " + inMsg;
-                        case LOGOUT -> "UNEXPECTED RESPONSE: " + inMsg;
+                        case LISTUSERS -> "UNEXPECTED RESPONSE: " + inMsg; //TODO: remove
+                        case LOGOUT -> "UNEXPECTED RESPONSE: " + inMsg; //TODO: remove
                         case TEXT -> ((TextMessage) inMsg).getText();
-                        case LOGIN -> "UNEXPECTED RESPONSE: " + inMsg;
+                        default -> "UNEXPECTED RESPONSE: " + inMsg;
                     });
         }   // Streams and sockets closed by try-with-resources
 
@@ -131,4 +145,3 @@ public class Client {
                 + " closed, exiting.");
     }
 }
-

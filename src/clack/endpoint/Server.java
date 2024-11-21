@@ -1,7 +1,8 @@
 package clack.endpoint;
 
+import clack.message.LoginMessage;
 import clack.message.Message;
-import clack.message.MsgTypeEnum;
+import clack.message.MsgType;
 import clack.message.TextMessage;
 
 import java.io.*;
@@ -75,31 +76,59 @@ public class Server
      */
     public void start() throws IOException, ClassNotFoundException
     {
-        System.out.println("Server starting on port " + port + ".");
-        System.out.println("Ctrl + C to exit.");
-
         try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server starting on port " + port + ".");
+            System.out.println("Ctrl + C to exit.");
             try (
                     // Wait for connection.
                     Socket clientSocket = serverSocket.accept();
 
                     // Build streams on the socket.
-                    ObjectInputStream inObj =
-                            new ObjectInputStream(clientSocket.getInputStream());
                     ObjectOutputStream outObj =
                             new ObjectOutputStream(clientSocket.getOutputStream());
+                    ObjectInputStream inObj =
+                            new ObjectInputStream(clientSocket.getInputStream());
             )
             {
                 Message inMsg;
                 Message outMsg;
+                boolean loginSuccess = false;
 
-                // Connection made. Greet client.
-                outMsg = new TextMessage(serverName, GREETING);
-                outObj.writeObject(outMsg);
-                outObj.flush();
-                if (SHOW_TRAFFIC) {
-                    System.out.println("=> " + outMsg);
-                }
+                //log in conversation
+                do {
+                    // Connection made. Greet client. SendGreeting to client
+                    outMsg = new TextMessage(serverName, GREETING);
+                    outObj.writeObject(outMsg);
+                    outObj.flush();
+                    if (SHOW_TRAFFIC) {
+                        System.out.println("=> " + outMsg);
+                    }
+
+                    inMsg = (Message) inObj.readObject(); //this is a Message
+
+                    //process the password
+                    if (inMsg.getMsgType() == MsgType.LOGIN) {
+                        String password = ((LoginMessage) inMsg).getPassword(); // get the password
+                        StringBuilder strBld = new StringBuilder(password);
+                        StringBuilder strBld_reverse = strBld.reverse();
+                        String reversePass = strBld_reverse.toString();
+                        if ((inMsg.getUsername()).equalsIgnoreCase(reversePass)) {
+                            //print success to client
+                            outMsg = new TextMessage(serverName, "Log in successful.");
+                            outObj.writeObject(outMsg);
+                            outObj.flush();
+                            loginSuccess = true;
+                        } else {
+                            //print success to client
+                            outMsg = new TextMessage(serverName, "Log in failed.");
+                            outObj.writeObject(outMsg);
+                            outObj.flush();
+                        }
+                    }
+
+                } while(!loginSuccess);
+
+                //after log in
 
                 // Converse with client.
                 do {
@@ -110,15 +139,16 @@ public class Server
 
                     // Process the received message
                     outMsg = switch (inMsg.getMsgType()) {
-                        case MsgTypeEnum.LISTUSERS ->
+                        case MsgType.LISTUSERS ->
                                 new TextMessage(serverName, "LISTUSERS requested");
-                        case MsgTypeEnum.LOGOUT ->
+                        case MsgType.LOGIN ->
+                                new TextMessage(serverName, "LOGIN requested");
+                        case MsgType.LOGOUT ->
                                 new TextMessage(serverName, GOOD_BYE);
-                        case MsgTypeEnum.TEXT ->
+                        case MsgType.TEXT ->
                                 new TextMessage(serverName,
-                                "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
-                        case MsgTypeEnum.LOGIN ->
-                            new TextMessage(serverName, "LOGIN requested");
+                                        "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
+                        case MsgType.FILE -> new TextMessage(serverName, "SEND FILE requested");
                     };
 
                     outObj.writeObject(outMsg);
@@ -126,7 +156,8 @@ public class Server
                     if (SHOW_TRAFFIC) {
                         System.out.println("=> " + outMsg);
                     }
-                } while (inMsg.getMsgType() != MsgTypeEnum.LOGOUT);
+
+                } while (inMsg.getMsgType() != MsgType.LOGOUT);
 
                 System.out.println("=== Terminating connection. ===");
             }   // Streams and socket closed by try-with-resources.
