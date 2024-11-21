@@ -1,8 +1,7 @@
 package clack.endpoint;
 
-import clack.message.LoginMessage;
 import clack.message.Message;
-import clack.message.MsgType;
+import clack.message.MsgTypeEnum;
 import clack.message.TextMessage;
 
 import java.io.*;

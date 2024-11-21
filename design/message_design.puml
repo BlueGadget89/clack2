@@ -10,15 +10,10 @@ package your_team_name.clack.message{
     Message <|-- LogoutMessage
     Message <|-- LoginMessage
     Message <|-- TextMessage
-'    hide Spacer1
-'    Message *-[hidden] Spacer1
-'    Spacer1 -[hidden] MsgTypeEnum
-'    OptionEnum -[hidden]-* OptionMessage
 
     OptionMessage --[hidden] FileMessage
     ListUsersMessage --[hidden] LogoutMessage
     TextMessage --[hidden] LoginMessage
-
 
     enum MsgTypeEnum {
         FILE
@@ -44,12 +39,9 @@ package your_team_name.clack.message{
         + getMsgType() : MsgTypeEnum
         + getTimestamp() : LocalDate
         + getUsername() : String
-        '+ {abstract} getData() : String[]
-'        + {abstract} clientAction(client)
-'        + {abstract} serverAction(server)
-        + {abstract} equals(Object) : boolean
-        + {abstract} hashCode() : int
-        + {abstract} toString() : String
+        + equals(Object) : boolean
+        + hashCode() : int
+        + toString() : String
     }
 
     class OptionMessage {
@@ -61,24 +53,13 @@ package your_team_name.clack.message{
     }
 
     class FileMessage {
-        '+ {static} CONTENTS : int <<final>>
-        '+ {static} READ_PATH : int <<final>>
-        '+ {static} SAVE_NAME : int <<final>>
         - fileContents : String <<final>>
-        '- fileReadPath : String <<final>>
         - fileName : String <<final>>
         + FileMessage(username, fileReadPath)
         + FileMessage(username, fileReadPath, fileSaveName)
-        '+ getData() : String[]
         + getFileContents() : String
-        '+ getFileReadPath() : String
         + getFileName() : String
     }
-'    note bottom of FileMessage
-'      getData() returns 3-element String[]. Use
-'      CONTENTS, READ_PATH, and SAVE_NAME
-'      constants as indexes to get respective data.
-'    end note
 
     class HelpMessage {
     + HelpMessage(username)
@@ -89,7 +70,9 @@ package your_team_name.clack.message{
     }
 
     class LoginMessage {
+        - password : String <<final>>
         + LoginMessage(username, password)
+        + getPassword() : String
     }
 
     class LogoutMessage {
@@ -101,15 +84,6 @@ package your_team_name.clack.message{
         + TextMessage(username, text)
         + getText() : String
     }
-'    note bottom of TextMessage
-'        getData() returns text, in sole element
-'        of one-element String[].
-'    end note
-
-'    note "getData() returns empty String array" as NoDataNote
-'    ListUsersMessage .. NoDataNote
-'    LogoutMessage .. NoDataNote
-
 }
 
 @enduml
