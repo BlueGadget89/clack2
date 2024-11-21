@@ -22,7 +22,7 @@ public abstract class CharacterCipher {
 
     /**
      * Returns the character that is n letters further on in ALPHABET,
-     * with wrap around at the end of ALPHABET. Negative values are
+     * with wrap around at either end of ALPHABET. Negative values are
      * allowed and cause a shift to the left. A shift of 0 returns
      * the original character.
      * @param c the character to shift.

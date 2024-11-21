@@ -1,7 +1,7 @@
 package clack.endpoint;
 
 import clack.message.Message;
-import clack.message.MsgType;
+import clack.message.MsgTypeEnum;
 import clack.message.TextMessage;
 
 import java.io.*;
@@ -109,11 +109,11 @@ public class Server
 
                     // Process the received message
                     outMsg = switch (inMsg.getMsgType()) {
-                        case MsgType.LISTUSERS ->
+                        case MsgTypeEnum.LISTUSERS ->
                                 new TextMessage(serverName, "LISTUSERS requested");
-                        case MsgType.LOGOUT ->
+                        case MsgTypeEnum.LOGOUT ->
                                 new TextMessage(serverName, GOOD_BYE);
-                        case MsgType.TEXT ->
+                        case MsgTypeEnum.TEXT ->
                                 new TextMessage(serverName,
                                 "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
                     };
@@ -123,7 +123,7 @@ public class Server
                     if (SHOW_TRAFFIC) {
                         System.out.println("=> " + outMsg);
                     }
-                } while (inMsg.getMsgType() != MsgType.LOGOUT);
+                } while (inMsg.getMsgType() != MsgTypeEnum.LOGOUT);
 
                 System.out.println("=== Terminating connection. ===");
             }   // Streams and socket closed by try-with-resources.

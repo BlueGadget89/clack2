@@ -3,9 +3,6 @@ package clack.endpoint;
 import clack.message.*;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -91,7 +88,7 @@ public class Client {
             do {
                 // Get server message and show it to user.
                 inMsg = (Message) inObj.readObject();
-                // TODO use a switch statement or expression, based on MsgType,
+                // TODO use a switch statement or expression, based on MsgTypeEnum,
                 // TODO to decide what to show the user.
 
                 // Get user input
@@ -102,11 +99,11 @@ public class Client {
                 // System.out.println("tokens: " + Arrays.toString(tokens));
 
                 // Construct Message based on user input and send it to server.
-                // TODO use a switch statement or expression, based on MsgType,
+                // TODO use a switch statement or expression, based on token[0],
                 // TODO to decide what Message object to construct.
 
                 // TODO send it to the server.
-            } while (outMsg.getMsgType() != MsgType.LOGOUT);
+            } while (outMsg.getMsgType() != MsgTypeEnum.LOGOUT);
 
             // Get server's closing reply and show it to user.
             inMsg = (Message) inObj.readObject();

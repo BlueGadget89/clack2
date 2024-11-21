@@ -19,8 +19,8 @@ public class FileMessage extends Message
     {
         super(username, MsgTypeEnum.FILE);
         this.fileName = fileSaveName;
-        this.fileContents = "";
-        // this.fileContents = new String(Files.readAllBytes(Paths.get(fileReadPath)));
+        // this.fileContents = "";
+        this.fileContents = new String(Files.readAllBytes(Paths.get(fileReadPath)));
     }
 
     public String getFileContents() {
@@ -29,6 +29,32 @@ public class FileMessage extends Message
 
     public String getFileName() {
         return fileName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || o.getClass() != this.getClass()) { return false; }
+       // if (!super.equals(o)) return false;
+        FileMessage that = (FileMessage) o;
+        return Objects.equals(this.getFileContents(), that.getFileContents()) &&
+                Objects.equals(this.getFileName(), that.getFileName());
+    }
+
+    @Override
+    public String toString()
+    {
+        return "FileMessage{" +
+                super.toString() +
+                ", fileName='" + fileName + '\'' +
+                ", fileContents='" + fileContents + '\'' +
+                '}';
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(super.hashCode(), fileContents, fileName);
     }
 
 }
