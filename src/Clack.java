@@ -53,9 +53,9 @@ public class Clack
 //                System.out.println("hehe Connecting to " + serverName + " on port " + port);
                 Client client =
                         new Client(serverName, port, Client.DEFAULT_USERNAME);
-                System.out.println("gooot heeerree v1");
-                client.start(); //TODO: there is an issue with the start method....needs fixing
-                System.out.println("gooot heeerree v2");
+//                System.out.println("gooot heeerree v1");
+                client.start();
+//                System.out.println("gooot heeerree v2");
             } catch (NumberFormatException e) {
                 System.err.println(args[2] + " cannot be parsed as an int.");
                 System.err.println(USAGE);

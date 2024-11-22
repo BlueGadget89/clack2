@@ -94,7 +94,7 @@ public class Client {
                 // Get server message (SendGreeting) and show it to user.
                 inMsg = (Message) inObj.readObject();
                 String printThis = switch (inMsg.getMsgType()) {
-                    case MsgType.TEXT -> "Welcome: '" + ((TextMessage) inMsg).getText() + "'";
+                    case MsgTypeEnum.TEXT -> "Welcome: '" + ((TextMessage) inMsg).getText() + "'";
                     default -> "UNEXPECTED MESSAGE: " + inMsg;
                 };
                 System.out.println(printThis); //Prints the SendGreeting
@@ -111,12 +111,16 @@ public class Client {
 
                 // Construct Message based on user input and send it to server.
                 outMsg = switch (tokens[0].toUpperCase()) {
+                    case "HELP"->
+                            new HelpMessage(username);
                     case "LIST USERS"->
                             new ListUsersMessage(username);
+                    case "OPTION" ->
+                            new OptionMessage(username, OptionEnum.valueOf(tokens[1]), tokens[2]); //TODO: how does the client send an option message with a 'null' value?
+                    case "SEND FILE"->
+                            new FileMessage(username, tokens[2]); //TODO: how do you handle the case where fp1 and fp2 are given?
                     case "LOGOUT"->
                             new LogoutMessage(username);
-                    case "SEND FILE"->
-                            new FileMessage(username, tokens[2]);
                     case "LOGIN"->
                             new LoginMessage(username, tokens[1]);
                     default->
@@ -127,7 +131,7 @@ public class Client {
                 outObj.writeObject(outMsg);
                 outObj.flush();
 
-            } while (outMsg.getMsgType() != MsgType.LOGOUT);
+            } while (outMsg.getMsgType() != MsgTypeEnum.LOGOUT);
 
             // Once user wants to logout:
             // Get server's closing reply and show it to user.
