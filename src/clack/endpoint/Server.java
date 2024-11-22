@@ -140,12 +140,12 @@ public class Server
                         case MsgTypeEnum.HELP ->
                                 new TextMessage(serverName, "Command Choices: " +
                                         "HELP, " +
-                                        "LISTUSERS," +
+                                        "LIST USERS," +
                                         "OPTION, " +
-                                        "SEND FILE" +
+                                        "SEND FILE, " +
                                         "LOGOUT");
                         case MsgTypeEnum.LISTUSERS ->
-                                new TextMessage(serverName, "LISTUSERS requested");
+                                new TextMessage(serverName, "LIST USERS requested");
                         case MsgTypeEnum.OPTION ->
                                 new TextMessage(serverName, "OptionsMsg requested"); //TODO: How should it store the 'value' argument?
                         case MsgTypeEnum.FILE ->

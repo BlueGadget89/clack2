@@ -113,11 +113,11 @@ public class Client {
                 outMsg = switch (tokens[0].toUpperCase()) {
                     case "HELP"->
                             new HelpMessage(username);
-                    case "LIST USERS"->
+                    case "LIST"->
                             new ListUsersMessage(username);
                     case "OPTION" ->
                             new OptionMessage(username, OptionEnum.valueOf(tokens[1]), tokens[2]); //TODO: how does the client send an option message with a 'null' value?
-                    case "SEND FILE"->
+                    case "SEND"->
                             new FileMessage(username, tokens[2]); //TODO: how do you handle the case where fp1 and fp2 are given?
                     case "LOGOUT"->
                             new LogoutMessage(username);
