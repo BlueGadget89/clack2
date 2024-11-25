@@ -39,8 +39,7 @@ public class Client {
      * @param username username to include in Messages.
      * @throws IllegalArgumentException if port not in range [1-49151]
      */
-    public Client(String hostname, int port, String username)
-    {
+    public Client(String hostname, int port, String username) {
         if (port < 1 || port > 49151) {
             throw new IllegalArgumentException(
                     "Port " + port + " not in range 1 - 49151.");
@@ -59,8 +58,7 @@ public class Client {
      * @param port     the service's port on the server.
      * @throws IllegalArgumentException if port not in range [1-49151]
      */
-    public Client(String hostname, int port)
-    {
+    public Client(String hostname, int port) {
         this(hostname, port, DEFAULT_USERNAME);
     }
 
@@ -71,8 +69,7 @@ public class Client {
      * @throws UnknownHostException if hostname is not resolvable.
      * @throws IOException          if socket creation, wrapping, or IO fails.
      */
-    public void start() throws UnknownHostException, IOException, ClassNotFoundException
-    {
+    public void start() throws UnknownHostException, IOException, ClassNotFoundException {
         System.out.println("Attempting connection to " + hostname + ":" + port);
         Scanner keyboard = new Scanner(System.in);
 
@@ -83,8 +80,7 @@ public class Client {
                 //streams for writing and reading
                 ObjectOutputStream outObj = new ObjectOutputStream(socket.getOutputStream()); //writes to socket
                 ObjectInputStream inObj = new ObjectInputStream(socket.getInputStream()); //reads from socket
-        )
-        {
+        ) {
             String userInput;
             Message inMsg;
             Message outMsg;
@@ -107,24 +103,29 @@ public class Client {
                     tokens = userInput.trim().split("\\s+");
                     // DEBUG
                     // System.out.println("tokens: " + Arrays.toString(tokens));
-                } while(tokens[0].length() == 0); //breaks when login is typed
+                } while (tokens[0].length() == 0); //breaks when login is typed
 
                 // Construct Message based on user input and send it to server.
                 outMsg = switch (tokens[0].toUpperCase()) {
-                    case "HELP"->
-                            new HelpMessage(username);
-                    case "LIST"->
-                            new ListUsersMessage(username);
+                    case "HELP" -> new HelpMessage(username);
+                    case "LIST" -> new ListUsersMessage(username);
                     case "OPTION" ->
                             new OptionMessage(username, OptionEnum.valueOf(tokens[1]), tokens[2]); //TODO: how does the client send an option message with a 'null' value?
-                    case "SEND"->
-                            new FileMessage(username, tokens[2]); //TODO: how do you handle the case where fp1 and fp2 are given?
-                    case "LOGOUT"->
-                            new LogoutMessage(username);
-                    case "LOGIN"->
-                            new LoginMessage(username, tokens[1]);
-                    default->
-                            new TextMessage(username, "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
+                    case "SEND" -> {
+                        if (tokens[1].equalsIgnoreCase("FILE") && tokens[3].equalsIgnoreCase("AS")) {
+                            //SEND FILE fp1 AS fp2
+                            yield new FileMessage(username, tokens[2], tokens[4]);
+                        } else if (tokens[1].equalsIgnoreCase("FILE") && tokens[2] != null) {
+                            //SEND FILE fp1
+                            yield new FileMessage(username, tokens[2]);
+                        } else {
+                            //send the help message
+                            yield new HelpMessage(username);
+                        }
+                    }
+                    case "LOGOUT" -> new LogoutMessage(username);
+                    case "LOGIN" -> new LoginMessage(username, tokens[1]);
+                    default -> new TextMessage(username, "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
                 };
 
                 //send the generated message back to the server
