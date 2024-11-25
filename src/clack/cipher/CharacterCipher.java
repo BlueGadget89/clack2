@@ -16,8 +16,23 @@ public abstract class CharacterCipher {
      * @return the grouped version of the argument string
      */
     public static String group(String str, int n) {
-        // TODO implement this
-        return "";
+        if (n <= 0) throw new IllegalArgumentException("Group size must be positive");
+        if (str == null) {
+            return null;
+        }
+
+        StringBuilder grouped = new StringBuilder();
+        int count = 0;
+
+        for (char ch : str.toCharArray()) {
+            if (count > 0 && count % n == 0) {
+                grouped.append(' ');
+            }
+            grouped.append(ch);
+            count++;
+        }
+
+        return grouped.toString();
     }
 
     /**
@@ -31,12 +46,13 @@ public abstract class CharacterCipher {
      * @throws IllegalArgumentException if c is not in ALPHABET.
      */
     public static char shift(char c, int n) {
-        if (ALPHABET.indexOf(c) < 0 ) {
+        int charIndex = ALPHABET.indexOf(c);
+        if (charIndex < 0 ) {
             throw new IllegalArgumentException(
                     "Argument ('" + c + "') not in ALPHABET");
         }
-        // TODO implement remainder of this.
-        return ' ';
+        int shiftedIndex = mod(charIndex + n, ALPHABET.length());
+        return ALPHABET.charAt(shiftedIndex);
     }
 
     /**
@@ -47,8 +63,52 @@ public abstract class CharacterCipher {
      * @return the shifted version of str.
      */
     public static String shift(String str, int n) {
-        // TODO implement this.
-        return "";
+        if (str == null) {
+            return null;
+        }
+
+        StringBuilder shifted = new StringBuilder();
+
+        for (char ch : str.toCharArray()) {
+            shifted.append(shift(ch, n));
+        }
+
+        return shifted.toString();
+    }
+
+    /**
+     * Removes all non-alphabet characters from a string, and
+     * uppercases all remaining letters. This is a utility
+     * method, useful in implementing prep(). If the argument
+     * is null or empty, returns it as it is.
+     *
+     * @param str the string to clean
+     * @return the cleaned string (which might be empty), or null.
+     */
+    public static String clean(String str) {
+        if (str == null) {
+            return null;
+        }
+        return str.toUpperCase().replaceAll("[^A-Z]", "");
+    }
+
+    /**
+     * Mathematical "mod" operator. Use instead of Java's "%"
+     * operator when shifting leftward (a negative shift), as
+     * this will always return a number in the range [0, modulus).
+     *
+     * @param n       the number to be "modded".
+     * @param modulus the modulus.
+     * @throws IllegalArgumentException if modulus < 1.
+     */
+    public static int mod(int n, int modulus) {
+        if (modulus < 1) {
+            throw new IllegalArgumentException("modulus cannot be < 1");
+        }
+        // n % modulus -> in range (-modulus, modulus)
+        // (n % modulus) + modulus -> in (0, 2 * modulus)
+        // ((n % modulus) + modulus) % modulus -> in [0, modulus)
+        return ((n % modulus) + modulus) % modulus;
     }
 
     /**
