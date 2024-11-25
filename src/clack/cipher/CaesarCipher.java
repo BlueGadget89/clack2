@@ -46,7 +46,7 @@ public class CaesarCipher extends CharacterCipher {
      */
     @Override
     String prep(String cleartext) {
-        return cleartext.toUpperCase().replaceAll("^[A-Z]", "");
+        return CharacterCipher.clean(cleartext);
     }
 
     /**
