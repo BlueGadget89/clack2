@@ -1,8 +1,6 @@
 package clack.endpoint;
 
-import clack.message.Message;
-import clack.message.MsgType;
-import clack.message.TextMessage;
+import clack.message.*;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -83,23 +81,47 @@ public class Server
                     Socket clientSocket = serverSocket.accept();
 
                     // Build streams on the socket.
-                    ObjectInputStream inObj =
-                            new ObjectInputStream(clientSocket.getInputStream());
                     ObjectOutputStream outObj =
                             new ObjectOutputStream(clientSocket.getOutputStream());
+                    ObjectInputStream inObj =
+                            new ObjectInputStream(clientSocket.getInputStream());
             )
             {
                 Message inMsg;
                 Message outMsg;
+                boolean loginSuccess = false;
 
-                // Connection made. Greet client.
-                outMsg = new TextMessage(serverName, GREETING);
-                outObj.writeObject(outMsg);
-                outObj.flush();
-                if (SHOW_TRAFFIC) {
-                    System.out.println("=> " + outMsg);
-                }
+                //log in conversation
+                do {
+                    // Connection made. Greet client. SendGreeting to client
+                    outMsg = new TextMessage(serverName, GREETING);
+                    outObj.writeObject(outMsg);
+                    outObj.flush();
+                    if (SHOW_TRAFFIC) {
+                        System.out.println("=> " + outMsg);
+                    }
 
+                    inMsg = (Message) inObj.readObject(); //this is a Message
+
+                    //process the password
+                    if (inMsg.getMsgType() == MsgTypeEnum.LOGIN) {
+                        String password = ((LoginMessage) inMsg).getPassword(); // get the password
+                        StringBuilder strBld = new StringBuilder(password);
+                        StringBuilder strBld_reverse = strBld.reverse();
+                        String reversePass = strBld_reverse.toString();
+                        if ((inMsg.getUsername()).equalsIgnoreCase(reversePass)) {
+                            //print success to client
+                            outMsg = new TextMessage(serverName, "Log in successful.");
+                            outObj.writeObject(outMsg);
+                            outObj.flush();
+                            loginSuccess = true;
+                        }else{
+
+                        }
+                    }
+                } while(!loginSuccess);
+
+                //after log in
                 // Converse with client.
                 do {
                     inMsg = (Message) inObj.readObject();
@@ -107,23 +129,42 @@ public class Server
                         System.out.println("<= " + inMsg);
                     }
 
+                    //if it is an option message, store the value
+                    if (inMsg.getMsgType() == MsgTypeEnum.OPTION) {
+                        //get the option
+                        OptionEnum storedOption = ((OptionMessage) inMsg).getOption();
+                    }
+
                     // Process the received message
                     outMsg = switch (inMsg.getMsgType()) {
-                        case MsgType.LISTUSERS ->
-                                new TextMessage(serverName, "LISTUSERS requested");
-                        case MsgType.LOGOUT ->
+                        case MsgTypeEnum.HELP ->
+                                new TextMessage(serverName, "Command Choices: " +
+                                        "HELP, " +
+                                        "LIST USERS," +
+                                        "OPTION, " +
+                                        "SEND FILE, " +
+                                        "LOGOUT");
+                        case MsgTypeEnum.LISTUSERS ->
+                                new TextMessage(serverName, "LIST USERS requested");
+                        case MsgTypeEnum.OPTION ->
+                                new TextMessage(serverName, "OptionsMsg requested"); //TODO: How should it store the 'value' argument?
+                        case MsgTypeEnum.FILE ->
+                                new TextMessage(serverName, "FILE received");
+                        case MsgTypeEnum.TEXT ->
+                                new TextMessage(serverName, "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
+                        case MsgTypeEnum.LOGIN ->
+                                new TextMessage(serverName, "You are already logged in.");
+                        case MsgTypeEnum.LOGOUT ->
                                 new TextMessage(serverName, GOOD_BYE);
-                        case MsgType.TEXT ->
-                                new TextMessage(serverName,
-                                "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
                     };
-
+                    //send it back to the Client
                     outObj.writeObject(outMsg);
                     outObj.flush();
                     if (SHOW_TRAFFIC) {
                         System.out.println("=> " + outMsg);
                     }
-                } while (inMsg.getMsgType() != MsgType.LOGOUT);
+
+                } while (inMsg.getMsgType() != MsgTypeEnum.LOGOUT);
 
                 System.out.println("=== Terminating connection. ===");
             }   // Streams and socket closed by try-with-resources.
