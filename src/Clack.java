@@ -16,50 +16,49 @@ import clack.endpoint.Server;
  * a jar file. IDEs vary in how they do this; check the IDE
  * documentation.
  */
-public class Clack
-{
+public class Clack {
     private final static String USAGE =
             "Usage: java Clack client <server name> <server port>\n"
                     + "       java Clack server <server port>";
 
-    public static void main(String[] args)
-    {
-//        System.out.println("myTest!!");
-        //server
-//        if (args.length < 2) {
-//            System.err.println(USAGE);
-//        } else if (args.length == 2
-//                && args[0].equalsIgnoreCase("server"))
-//        {
-//            try {
-//                int port = Integer.parseInt(args[1]);
-//                Server server = new Server(port, Server.DEFAULT_SERVERNAME);
-//                server.start();
-//            } catch (NumberFormatException e) {
-//                System.err.println(args[1] + " cannot be parsed as an int.");
-//                System.err.println(USAGE);
-//            } catch (Exception e) {
-//                System.err.println(e.getMessage());
-//                System.err.println(USAGE);
-//            }
-//
-//            //client
-//        } else if (args.length == 3
-//                && args[0].equalsIgnoreCase("client"))
-//        {
-//            try {
-//                String serverName = args[1];
-////                String password = "text";
-//                int port = Integer.parseInt(args[2]);
-////                System.out.println("hehe Connecting to " + serverName + " on port " + port);
-//                Client client =
-//                        new Client(serverName, port, Client.DEFAULT_USERNAME);
-////                System.out.println("gooot heeerree v1");
-//                client.start();
-////                System.out.println("gooot heeerree v2");
-//            } catch (NumberFormatException e) {
-//                System.err.println(args[2] + " cannot be parsed as an int.");
-//                System.err.println(USAGE);
-//            } catch (Exception e) {
-//                System.err.println(e.getMessage());
-//                System.err.printl
+    public static void main(String[] args) {
+        System.out.println("myTest!!");
+
+        if (args.length < 2) {
+            System.err.println(USAGE);
+        } else if (args.length == 2
+                && args[0].equalsIgnoreCase("server")) {
+            try {
+                int port = Integer.parseInt(args[1]);
+                Server server = new Server(port, Server.DEFAULT_SERVERNAME);
+                server.start();
+            } catch (NumberFormatException e) {
+                System.err.println(args[1] + " cannot be parsed as an int.");
+                System.err.println(USAGE);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.err.println(USAGE);
+            }
+
+            //client
+        } else if (args.length == 3
+                && args[0].equalsIgnoreCase("client")) {
+            try {
+                String serverName = args[1];
+//                String password = "text";
+                int port = Integer.parseInt(args[2]);
+//                System.out.println("hehe Connecting to " + serverName + " on port " + port);
+                Client client =
+                        new Client(serverName, port, Client.DEFAULT_USERNAME);
+//                System.out.println("gooot heeerree v1");
+                client.start();
+//                System.out.println("gooot heeerree v2");
+            } catch (NumberFormatException e) {
+                System.err.println(args[2] + " cannot be parsed as an int.");
+                System.err.println(USAGE);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+    }
+}
