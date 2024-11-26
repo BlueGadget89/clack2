@@ -6,6 +6,12 @@ import java.util.regex.Pattern;
 public class VignereCipher extends CharacterCipher{
     private final String key;
 
+    /**
+     * Constructs a VignereCipher object that has the ability to
+     * prep, encrypt, and decrypt strings. Using polyalphabetic
+     * substitution to encrypt and decrypt the messages
+     * @param key the desired key to be used
+     */
     public VignereCipher(String key) {
         if (key == null || key.equals("")) {
             throw new IllegalArgumentException(
@@ -89,6 +95,14 @@ public class VignereCipher extends CharacterCipher{
     }
 
 
+    /**
+     * This function generates the encription key in a cyclic manner
+     * until the generated key is the same length as the str length.
+     *
+     * @param str message that is used for encryption/decryption
+     * @param key key that is defined for the encryption object
+     * @return generated key that is to be used
+     */
     private String generateKey(String str, String key) {
         StringBuilder keyOut = new StringBuilder();
         int x = str.length();

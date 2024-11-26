@@ -3,6 +3,12 @@ package clack.cipher;
 public class PlayfairCipher extends CharacterCipher {
     private final char[][] matrix;
 
+    /**
+     * Constructs a PlayfairCipher object that has the ability to
+     * prep, encrypt, and decrypt strings. Using a key matrix to
+     * encrypt and decrypt the messages
+     * @param key the desired key to be used
+     */
     public PlayfairCipher(String key) {
         if (key == null) {
             throw new IllegalArgumentException(
@@ -13,9 +19,11 @@ public class PlayfairCipher extends CharacterCipher {
     }
 
     /**
-     * Prepare cleartext for encrypting. At minimum this requires
-     * removing spaces, punctuation, and non-alphabetic characters,
-     * then uppercasing what's left.
+     * Prepare cleartext for encrypting. Removes punctuation, spaces, and converts
+     * characters to uppercase and cleans the cleartext in sets of two. Also
+     * replaces `J` with `I`, Will use `X` in the case that a pair of letters
+     * are the same two letters. It will also append a `Z` at the end of the text
+     * to make it an even amount of characters if its odd.
      *
      * @param cleartext
      * @return a version of the cleartext ready for encrypting.
@@ -108,6 +116,14 @@ public class PlayfairCipher extends CharacterCipher {
         return plaintext.toString();
     }
 
+    /**
+     * Generates the key matrix - a 5×5 grid of alphabets that acts as the key
+     * for encrypting the plaintext. Each of the 25 alphabets must be unique with
+     * `J` being omitted.
+     *
+     * @param key the prepped key to be used to generate the matrix
+     * @return the matrix kay that's generated
+     */
     private char[][] generateMatrix(String key) {
         char[][] matrix = new char[5][5];
         boolean[] used = new boolean[26];
@@ -138,6 +154,14 @@ public class PlayfairCipher extends CharacterCipher {
         return matrix;
     }
 
+    /**
+     * Helper function to be able to find the position
+     * of a character within the matrix key, by searching
+     * through the rows and the columns.
+     *
+     * @param ch character to search for
+     * @return location of the character
+     */
     private int[] search(char ch) {
         int[] position = new int[2];
         for (int i = 0; i < 5; i++) {
