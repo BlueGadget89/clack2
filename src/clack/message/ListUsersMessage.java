@@ -15,11 +15,24 @@ public class ListUsersMessage extends Message {
         super(username, MsgTypeEnum.LISTUSERS);
     }
 
+    /**
+     * Returns a string representation of the ListUsersMessage.
+     *
+     * @return a string representation of the ListUsersMessage
+     */
     @Override
     public String toString() {
         return "ListUsersMessage{" + super.toString() + "}";
     }
 
+    /**
+     * Compares this ListUsersMessage to the specified object for equality.
+     * The result is true if and only if the argument is not null and is a ListUsersMessage object
+     * that has the same username and type as this object.
+     *
+     * @param o the object to compare this ListUsersMessage against
+     * @return true if the given object represents a ListUsersMessage equivalent to this ListUsersMessage, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
@@ -27,6 +40,11 @@ public class ListUsersMessage extends Message {
         return super.equals(o);
     }
 
+    /**
+     * Returns a hash code value for the ListUsersMessage.
+     *
+     * @return a hash code value for this object
+     */
     @Override
     public int hashCode() {
         return super.hashCode();

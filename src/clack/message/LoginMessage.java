@@ -4,6 +4,9 @@ import java.util.Objects;
 
 /**
  * Represents a login message in the Clack system.
+ * <p>
+ * A login message is used when a user logs in to the system. It contains
+ * the username and password associated with the user.
  */
 public class LoginMessage extends Message {
     private final String password;
@@ -28,24 +31,42 @@ public class LoginMessage extends Message {
         return password;
     }
 
+    /**
+     * Compares this LoginMessage to another object for equality.
+     *
+     * @param o the object to compare with
+     * @return true if this object is equal to o, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || o.getClass() != this.getClass()) { return false; }
         //if (!super.equals(o)) return false;
         LoginMessage that = (LoginMessage) o;
-        return Objects.equals(this.getPassword(), that.getPassword());
+        return Objects.equals(this.getUsername(), that.getUsername()) // compare username
+                && Objects.equals(this.getPassword(), that.getPassword());
     }
 
+    /**
+     * Returns a hash code value for this LoginMessage.
+     *
+     * @return a hash code value for this object
+     */
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), password);
     }
 
+    /**
+     * Returns a string representation of the LoginMessage.
+     *
+     * @return a string representation of this object with the password masked
+     */
     @Override
     public String toString() {
         return "LoginMessage{" +
-                "password='" + password + '\'' +
-                "} " + super.toString();
+                super.toString() +  // Include the message details first
+                ", password='**********'" +  // Mask the password
+                '}';
     }
 }

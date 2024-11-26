@@ -15,6 +15,11 @@ public class HelpMessage extends Message {
         super(username, MsgTypeEnum.HELP);
     }
 
+    /**
+     * Returns a string representation of the HelpMessage.
+     *
+     * @return a string representation of the HelpMessage
+     */
     public String toString()
     {
         return "HelpMessage{"
@@ -22,6 +27,14 @@ public class HelpMessage extends Message {
                 + "}";
     }
 
+    /**
+     * Compares this HelpMessage to the specified object for equality.
+     * The result is true if and only if the argument is not null and is a HelpMessage object
+     * that has the same username and type as this object.
+     *
+     * @param o the object to compare this HelpMessage against
+     * @return true if the given object represents a HelpMessage equivalent to this HelpMessage, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
@@ -29,6 +42,11 @@ public class HelpMessage extends Message {
         return super.equals(o);
     }
 
+    /**
+     * Returns a hash code value for the HelpMessage.
+     *
+     * @return a hash code value for this object
+     */
     @Override
     public int hashCode() {
         return super.hashCode();

@@ -24,12 +24,9 @@ public class OptionMessage extends Message {
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || o.getClass() != this.getClass()) { return false; }
-     //   if (!super.equals(o)) return false;
         OptionMessage that = (OptionMessage) o;
         return Objects.equals(this.getOption(), that.getOption())
                 && Objects.equals(this.getValue(), that.getValue());
-       // return option == that.option &&
-              //  Objects.equals(value, that.value);
     }
 
     @Override
@@ -40,9 +37,10 @@ public class OptionMessage extends Message {
     @Override
     public String toString() {
         return "OptionMessage{" +
-                "option=" + option +
+                super.toString() +  // Include the message details first
+                ", option=" + option +
                 ", value='" + value + '\'' +
-                "} " + super.toString();
+                "}";
     }
 }
 
