@@ -3,6 +3,9 @@ package clack.endpoint;
 import clack.message.*;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -74,10 +77,12 @@ public class Client {
         Scanner keyboard = new Scanner(System.in);
 
         try (
-            // TODO Create a socket (named 'socket') using hostname and port.
+                //tries to establish a connection
+                Socket socket = new Socket(hostname, port);
 
-            // TODO Construct an ObjectInputStream and ObjectOutputStream on the socket.
-            // TODO Name them 'inObj' and 'outObj'.
+                //streams for writing and reading
+                ObjectOutputStream outObj = new ObjectOutputStream(socket.getOutputStream()); //writes to socket
+                ObjectInputStream inObj = new ObjectInputStream(socket.getInputStream()); //reads from socket
         )
         {
             String userInput;
@@ -86,32 +91,55 @@ public class Client {
 
             // Take turns talking. Server goes first.
             do {
-                // Get server message and show it to user.
+                // Get server message (SendGreeting) and show it to user.
                 inMsg = (Message) inObj.readObject();
-                // TODO use a switch statement or expression, based on MsgTypeEnum,
-                // TODO to decide what to show the user.
+                String printThis = switch (inMsg.getMsgType()) {
+                    case MsgTypeEnum.TEXT -> "Welcome: '" + ((TextMessage) inMsg).getText() + "'";
+                    default -> "UNEXPECTED MESSAGE: " + inMsg;
+                };
+                System.out.println(printThis); //Prints the SendGreeting
 
-                // Get user input
-                System.out.print(prompt);
-                userInput = keyboard.nextLine();
-                String[] tokens = userInput.trim().split("\\s+");
-                // DEBUG
-                // System.out.println("tokens: " + Arrays.toString(tokens));
+                String[] tokens;
+                do {
+                    // Get user input
+                    System.out.print(prompt);
+                    userInput = keyboard.nextLine();
+                    tokens = userInput.trim().split("\\s+");
+                    // DEBUG
+                    // System.out.println("tokens: " + Arrays.toString(tokens));
+                } while(tokens[0].length() == 0); //breaks when login is typed
 
                 // Construct Message based on user input and send it to server.
-                // TODO use a switch statement or expression, based on token[0],
-                // TODO to decide what Message object to construct.
+                outMsg = switch (tokens[0].toUpperCase()) {
+                    case "LIST USERS"->
+                            new ListUsersMessage(username);
+                    case "LOGOUT"->
+                            new LogoutMessage(username);
+                    case "SEND FILE"->
+                            new FileMessage(username, tokens[2]);
+                    case "LOGIN"->
+                            new LoginMessage(username, tokens[1]);
+                    case "OPTION" ->
+                            new OptionMessage(username, OptionEnum.valueOf(tokens[1]), tokens[2]);
+                    default->
+                            new TextMessage(username, "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
+                };
 
-                // TODO send it to the server.
+                //send the generated message back to the server
+                outObj.writeObject(outMsg);
+                outObj.flush();
+
             } while (outMsg.getMsgType() != MsgTypeEnum.LOGOUT);
 
+            // Once user wants to logout:
             // Get server's closing reply and show it to user.
             inMsg = (Message) inObj.readObject();
             System.out.println(
                     switch (inMsg.getMsgType()) {
-                        case LISTUSERS -> "UNEXPECTED RESPONSE: " + inMsg;
-                        case LOGOUT -> "UNEXPECTED RESPONSE: " + inMsg;
+                        case LISTUSERS -> "UNEXPECTED RESPONSE: " + inMsg; //TODO: remove
+                        case LOGOUT -> "UNEXPECTED RESPONSE: " + inMsg; //TODO: remove
                         case TEXT -> ((TextMessage) inMsg).getText();
+                        default -> "UNEXPECTED RESPONSE: " + inMsg;
                     });
         }   // Streams and sockets closed by try-with-resources
 

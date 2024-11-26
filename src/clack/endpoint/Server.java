@@ -1,8 +1,6 @@
 package clack.endpoint;
 
-import clack.message.Message;
-import clack.message.MsgTypeEnum;
-import clack.message.TextMessage;
+import clack.message.*;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -83,22 +81,51 @@ public class Server
                     Socket clientSocket = serverSocket.accept();
 
                     // Build streams on the socket.
-                    ObjectInputStream inObj =
-                            new ObjectInputStream(clientSocket.getInputStream());
                     ObjectOutputStream outObj =
                             new ObjectOutputStream(clientSocket.getOutputStream());
+                    ObjectInputStream inObj =
+                            new ObjectInputStream(clientSocket.getInputStream());
             )
             {
                 Message inMsg;
                 Message outMsg;
+                boolean loginSuccess = false;
 
-                // Connection made. Greet client.
-                outMsg = new TextMessage(serverName, GREETING);
-                outObj.writeObject(outMsg);
-                outObj.flush();
-                if (SHOW_TRAFFIC) {
-                    System.out.println("=> " + outMsg);
-                }
+                //log in conversation
+                do {
+                    // Connection made. Greet client. SendGreeting to client
+                    outMsg = new TextMessage(serverName, GREETING);
+                    outObj.writeObject(outMsg);
+                    outObj.flush();
+                    if (SHOW_TRAFFIC) {
+                        System.out.println("=> " + outMsg);
+                    }
+
+                    inMsg = (Message) inObj.readObject(); //this is a Message
+
+                    //process the password
+                    if (inMsg.getMsgType() == MsgTypeEnum.LOGIN) {
+                        String password = ((LoginMessage) inMsg).getPassword(); // get the password
+                        StringBuilder strBld = new StringBuilder(password);
+                        StringBuilder strBld_reverse = strBld.reverse();
+                        String reversePass = strBld_reverse.toString();
+                        if ((inMsg.getUsername()).equalsIgnoreCase(reversePass)) {
+                            //print success to client
+                            outMsg = new TextMessage(serverName, "Log in successful.");
+                            outObj.writeObject(outMsg);
+                            outObj.flush();
+                            loginSuccess = true;
+                        } else {
+                            //print success to client
+                            outMsg = new TextMessage(serverName, "Log in failed.");
+                            outObj.writeObject(outMsg);
+                            outObj.flush();
+                        }
+                    }
+
+                } while(!loginSuccess);
+
+                //after log in
 
                 // Converse with client.
                 do {
@@ -109,20 +136,30 @@ public class Server
 
                     // Process the received message
                     outMsg = switch (inMsg.getMsgType()) {
+                        case MsgTypeEnum.HELP ->
+                                new HelpMessage(serverName); //TODO: send the user a list of help commands
+                        case MsgTypeEnum.OPTION ->
+                                new TextMessage(serverName, "OptionsMsg requested"); //TODO: must come from the user input OR set the default
                         case MsgTypeEnum.LISTUSERS ->
                                 new TextMessage(serverName, "LISTUSERS requested");
+                        case MsgTypeEnum.LOGIN ->
+                                new TextMessage(serverName, "LOGIN requested");
                         case MsgTypeEnum.LOGOUT ->
                                 new TextMessage(serverName, GOOD_BYE);
                         case MsgTypeEnum.TEXT ->
                                 new TextMessage(serverName,
-                                "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
+                                        "TEXT: '" + ((TextMessage) inMsg).getText() + "'");
+                        case MsgTypeEnum.FILE -> new TextMessage(serverName, "SEND FILE requested");
+
                     };
 
+                    //send it back to the Client
                     outObj.writeObject(outMsg);
                     outObj.flush();
                     if (SHOW_TRAFFIC) {
                         System.out.println("=> " + outMsg);
                     }
+
                 } while (inMsg.getMsgType() != MsgTypeEnum.LOGOUT);
 
                 System.out.println("=== Terminating connection. ===");
@@ -130,3 +167,5 @@ public class Server
         } // Server socket closed by try-with-resources.
     }
 }
+
+
